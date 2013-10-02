@@ -16,7 +16,6 @@ define('ERROR_MSG_TWO','ログイン情報が間違っております。もう�
 
 $req_mail  = htmlspecialchars($_REQUEST['mail'],ENT_QUOTES);
 $req_pass  = htmlspecialchars($_REQUEST['pass'],ENT_QUOTES);
-
 /*
  * データベース接続
 */
@@ -28,12 +27,12 @@ try{
 	die('error');
 }
 //ログイン処理
-if ($_POST['code'] === 'one_code') {
+if ($_POST['code'] == "code_one") {
 	//form情報が渡ってきたら
-
+    //ログイン
 	$sth = $PDO->prepare('select * from login where mail = :mail and pass = :pass');
-	$sth->bindValue(':mail',$req_mail,PDO::PARAM_STR);
-	$sth->bindValue(':pass',$req_pass,PDO::PARAM_STR);
+	$sth->bindValue(':mail',mysql_real_escape_string($req_mail),PDO::PARAM_STR);
+	$sth->bindValue(':pass',mysql_real_escape_string($req_pass),PDO::PARAM_STR);
 	$sth->execute();
 	$row = $sth->fetch(PDO::FETCH_ASSOC);
 	//ログイン処理
@@ -41,7 +40,7 @@ if ($_POST['code'] === 'one_code') {
 		$_SESSION['id']   = $row['id'];
 		$_SESSION['time'] = time();
 		$_SESSION['name'] = $row['name'];
-		header('location:http://www.google.jp');
+		header('location:./after.php');
 	}else{
 		if (isset($_POST['in'])){
 			if(empty($_POST['mail']) && empty($_POST['pass'])){
@@ -66,8 +65,8 @@ if ($_POST['code'] === 'one_code') {
 <form action="" method="POST">
 <?php echo $error."<BR>";?>
 　アドレス<input type="text" name="mail"><br><br>
-パスワード<input type="text" name="pass"><br><br>
-<input type="hidden" name="transmit" value="transmission ">
+パスワード<input type="password" name="pass"><br><br>
+<input type="hidden" name="code" value="code_one">
 <input type="submit" value="送信" name="in">
 </form>
 </center>
