@@ -50,7 +50,7 @@ if ($_POST['code'] == "code_one") {
 			}else if($_POST['pass'] == ""){
 				$error = "パスワードをご記入ください。";
 			}else{
-				$error = "ログイン情報が違います";;
+				$error = "ログイン情報が違います";
 			}
 		}
 	}
