@@ -61,7 +61,8 @@ if ($_POST['code'] === 'one_code') {
 ?>
 
 <html>
-<body><center><br>
+<body>
+<center><br>
 <form action="" method="POST">
 <?php echo $error."<BR>";?>
 　アドレス<input type="text" name="mail"><br><br>

@@ -20,20 +20,16 @@ $pass = htmlspecialchars($_POST['pass']);
 
 //データベース登録
 if($_POST['regist'] == 'reg'){
-	if($_POST['name'] ==""){
-		$error['name'] = "お名前をご記入くださいませ。<BR>";
-	}else if($_POST['mail'] ==""){
-		$error['name'] = "アドレスをご記入くださいませ。<BR>";
-	}else if($_POST['pass'] ==""){
-		$error['pass'] = "パスワードをご記入くださいませ。<BR>";
-	}else{
-	    true;
+	if(empty($_POST['name']) or empty($_POST['name']) or empty($_POST['name'])){
+		$error = "入力情報に誤りがあり登録ができませんでした。<br>";
 	}
+	//データ追加
 	$sth = $PDO->prepare('INSERT INTO login (name,mail,pass) VALUES (?,?,?)');
 	$sth->bindValue(1,$name);
 	$sth->bindValue(2,$mail);
 	$sth->bindValue(3,$pass);
-	$sth->execute();
+	$sth->execute();//完了
+	header('location:after.php');
 }
 ?>
 
@@ -41,14 +37,13 @@ if($_POST['regist'] == 'reg'){
 <body>
 <center>
 <form action="" method="POST">
-<?php if(isset($error)){ ?>
-<?php foreach($error as $ms){echo $ms;}?>
-<?php }?>
+<?php echo $error?>
 name：<input type="test" name="name"><BR><BR>
 mail：<input type="text" name="mail"><BR><BR>
 pass：<input type="text" name="pass"><BR><BR>
 <input type="hidden" name="regist" value="reg">
 <input type="submit" name="sub">
+
 </form>
 </center>
 </body>
