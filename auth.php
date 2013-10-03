@@ -21,6 +21,7 @@ class  auth{
 	public $login_hidden;
 	private $PDO = null;
 
+	//処理開始
 	public function __construct(){
 		session_start();
 		//簡易データベース接続
