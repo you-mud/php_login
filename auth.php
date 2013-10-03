@@ -26,7 +26,6 @@ class  auth{
 	const HOST = DB_HOST;
 	const USER = DB_USER;
 	const PASS = DB_PASS;
-
 	public $name;
 	public $mail;
 	public $pass;
@@ -34,7 +33,6 @@ class  auth{
 	public $login_mail;
 	public $login_pass;
 	public $login_hidden;
-
 	private $PDO = null;
 
 	public function __construct(){
@@ -54,7 +52,6 @@ class  auth{
  * 入力文字列確認
  * 名前、ﾒｰﾙ、ﾊﾟｽﾜｰﾄﾞを登録
  */
-
 	public function registar($name,$mail,$pass,$hidden){
 		$this->name   = htmlspecialchars($name);
 		$this->mail   = htmlspecialchars($mail);
@@ -62,7 +59,6 @@ class  auth{
 		$this->hidden = htmlspecialchars($hidden);
 		$this->check($this->name,$this->mail,$this->pass,$this->hidden);
 	}
-
 	//文字列チェック
 	public function check($name,$mail,$pass,$hidden){
 		if($this->hidden === 'hidden'){
