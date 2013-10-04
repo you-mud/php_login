@@ -15,3 +15,5 @@ define('ERROR_MSG4','既にこのｱﾄﾞﾚｽは登録されております')
 define('ERROR_MSG5','不正なｱｸｾｽになります');
 define('ERROR_MAG6','ｱﾄﾞﾚｽをご確認くださいませ');
 define('SUCCESS_MSG','ﾃﾞｰﾀﾍﾞｰｽ登録が完了いたしました。');
+define('SUCCESS_LOG','ﾛｸﾞｲﾝに成功いたしました。');
+define('ERROR_LOG','ﾛｸﾞｲﾝｴﾗｰです。ｱﾄﾞﾚｽとﾊﾟｽﾜｰﾄﾞをご確認くださいませ。');

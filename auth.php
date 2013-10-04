@@ -2,9 +2,8 @@
 /*
  * ﾃﾞｰﾀﾍﾞｰｽ登録・ﾛｸﾞｲﾝ・ﾛｸﾞｱｳﾄｸﾗｽ
  * 機能//DB接続、入力確認、ﾃﾞｰﾀﾍﾞｰｽ登録
- * @you-mud
- *
  * 備考：ﾃﾞｰﾀﾍﾞｰｽのｱﾄﾞﾚｽｶﾗﾑはﾕﾆｰｸに設定しておく必要がある
+ * ﾊﾟｽﾜｰﾄﾞはsha256でﾊｯｼｭ処理
  */
 require_once './config.php';
 //クラス開始
@@ -34,7 +33,6 @@ class  auth{
 			print('Error:'.$e->getMessage());
 			die('error');
 		}
-
 	}
 	/*
 	 * 新規登録関数
@@ -71,21 +69,22 @@ class  auth{
 				//ﾊﾟｽﾜｰﾄﾞが32文字以下か確認
 				$this->error_msg .= ERROR_MSG1;
 				return $this->error_msg;
-			}else if (preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $this->pass)) {
+			}else if (!preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $this->mail)) {
 				//ｱﾄﾞﾚｽの正規表現ﾁｪｯｸ
 				$this->error_msg .= ERROR_MAG6;
 				return $this->error_msg;
-			}else if (preg_match( "/[\@-\~]/" , $this->pass)) {
-				//ﾊﾟｽﾜｰﾄﾞの半角英数ﾁｪｯｸ
+			}else if (!preg_match("/^[a-zA-Z0-9]+$/", $this->pass)) {
+				//ｱﾄﾞﾚｽの半角英数ﾁｪｯｸ
 				$this->error_msg .= ERROR_MSG3;
 				return $this->error_msg;
 			}
+			//確認後ﾊﾟｽﾜｰﾄﾞをﾊｯｼｭ処理
+			$this->pass = hash("sha256",$this->pass);
 			//ﾁｪｯｸ後登録関数へ渡す
 			$this->duplication_check($this->name,$this->mail,$this->pass,$this->hidden);
 		}else{
 			$this->error_msg = ERROR_MSG5;
 			return $this->error_msg;
-			echo "mojoo";
 		}
 	}
 	/*
@@ -119,21 +118,35 @@ class  auth{
 	 * ﾛｸﾞｲﾝ機能
 	*/
 	public function login($mailad,$password,$hidden){
+		//初期化処理
+		$this->login_mail = "";
+		$this->login_pass = "";
+		//ｴｽｹｰﾌﾟ処理
 		$this->login_mail = htmlspecialchars($mailad);
 		$this->login_pass = htmlspecialchars($password);
-		if ($this->hidden == "code_one") {
-			//form情報が渡ってきたら
+		$this->login_hidd = htmlspecialchars($hidden);
+		//ﾊﾟｽﾜｰﾄﾞのﾊｯｼｭ処理、sha256
+		$this->login_pass = hash("sha256",$this->login_pass);
+		var_dump($this->login_pass);
+		if ($this->login_hidd == "hidden") {
+			//form情報が渡ってきたらﾃﾞｰﾀﾍﾞｰｽ確認
 			$sth = $this->PDO->prepare('select * from login where mail = :mail and pass = :pass');
-			$sth->bindValue(':mail',mysql_real_escape_string($this->login_mail),PDO::PARAM_STR);
-			$sth->bindValue(':pass',mysql_real_escape_string($this->login_pass),PDO::PARAM_STR);
+			$sth->bindValue(':mail',$this->login_mail,PDO::PARAM_STR);
+			$sth->bindValue(':pass',$this->login_pass,PDO::PARAM_STR);
 			$sth->execute();
 			$row = $sth->fetch(PDO::FETCH_ASSOC);
 			//ﾛｸﾞｲﾝﾃﾞｰﾀがあったら以下の処理
-			if($row['mail'] === $req_mail && $row['pass'] === $req_pass){
+			if($row['mail'] === $this->login_mail && $row['pass'] === $this->login_pass){
 				$_SESSION['id']   = $row['id'];
 				$_SESSION['time'] = time();
 				$_SESSION['name'] = $row['name'];
-				header('location:./after.php');
+				$this->success_msg = SUCCESS_LOG;
+				//header('location:./after.php');
+				//rinda-rinda@rinda.com
+			}else{
+				$this->error_msg = "";
+				$this->error_msg = ERROR_LOG;
+				return $this->error_msg;
 			}
 		}
 	}
