@@ -1,5 +1,5 @@
 <?php
-require_once './auth.php';
+require_once '../auth.php';
 
 $regist = new auth();
 if(isset($_POST['name'])){

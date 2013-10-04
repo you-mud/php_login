@@ -4,9 +4,9 @@
  * 機能//DB接続、入力確認、ﾃﾞｰﾀﾍﾞｰｽ登録
  * 備考：ﾃﾞｰﾀﾍﾞｰｽのｱﾄﾞﾚｽｶﾗﾑはﾕﾆｰｸに設定しておく必要がある
  * ﾊﾟｽﾜｰﾄﾞはsha256でﾊｯｼｭ処理
- * ｸｯｷｰで以前入力したｱﾄﾞﾚｽをﾌｫｰﾑに実装
+ * ｸｯｷｰで以前入力したｱﾄﾞﾚｽをﾌｫｰﾑに実装、任意でsetcookieのﾄﾞﾒｲﾝ変更
  */
-require_once './config.php';
+require_once '/common/config.php';
 //クラス開始
 class  auth{
 	const HOST = DB_HOST;
@@ -54,31 +54,31 @@ class  auth{
 		if($this->hidden === 'hidden'){
 			if(empty($this->name)){
 				//nameがnullだったら
-				$this->error_msg  = ERROR_NAME;
+				$this->error_msg  = ERROR_NONE_NAME;
 				return $this->error_msg;
 			}else if(empty($this->mail)){
 				//mailがnullだったら
-				$this->error_msg .= ERROR_MAIL;
+				$this->error_msg .= ERROR_NONE_MAIL;
 				return $this->error_msg;
 			}else if(empty($this->pass)){
 				//ﾊﾟｽﾜｰﾄﾞがnullだったら
-				$this->error_msg .= ERROR_PASS;
+				$this->error_msg .= ERROR_NONE_PASS;
 				return $this->error_msg;
 			}else if (mb_strlen($this->pass) < 6) {
 				//ﾊﾟｽﾜｰﾄﾞが6文字以下だったら
-				$this->error_msg .= ERROR_MSG;
+				$this->error_msg .= ERROR_SMALL_PASS;
 				return $this->error_msg;
 			}else if (mb_strlen($this->pass) > 32){
 				//ﾊﾟｽﾜｰﾄﾞが32文字以下か確認
-				$this->error_msg .= ERROR_MSG1;
+				$this->error_msg .= ERROR_BIG_PASS;
 				return $this->error_msg;
 			}else if (!preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $this->mail)) {
 				//ｱﾄﾞﾚｽの正規表現ﾁｪｯｸ
-				$this->error_msg .= ERROR_MAG6;
+				$this->error_msg .= ERROR_CHECK_AD;
 				return $this->error_msg;
 			}else if (!preg_match("/^[a-zA-Z0-9]+$/", $this->pass)) {
 				//ｱﾄﾞﾚｽの半角英数ﾁｪｯｸ
-				$this->error_msg .= ERROR_MSG3;
+				$this->error_msg .= ERROR_CHECK_PASS;
 				return $this->error_msg;
 			}
 			//確認後ﾊﾟｽﾜｰﾄﾞをﾊｯｼｭ処理
@@ -86,7 +86,7 @@ class  auth{
 			//ﾁｪｯｸ後登録関数へ渡す
 			$this->duplication_check($this->name,$this->mail,$this->pass,$this->hidden);
 		}else{
-			$this->error_msg = ERROR_MSG5;
+			$this->error_msg = ERROR_NOT_ACCESS;
 			return $this->error_msg;
 		}
 	}

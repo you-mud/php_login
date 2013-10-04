@@ -1,5 +1,5 @@
 <?php
-require_once './auth.php';
+require_once '../auth.php';
 $suc = new auth();
 $suc->login($_POST['mail'],$_POST['pass'],$_POST['hidden'],$_POST['behind']);
 
