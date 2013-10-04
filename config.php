@@ -13,3 +13,5 @@ define('ERROR_MSG2','ｱﾄﾞﾚｽを半角英数字でご登録ください')
 define('ERROR_MSG3','ﾊﾟｽﾜｰﾄﾞは半角英数字でご登録ください');
 define('ERROR_MSG4','既にこのｱﾄﾞﾚｽは登録されております');
 define('ERROR_MSG5','不正なｱｸｾｽになります');
+define('ERROR_MAG6','ｱﾄﾞﾚｽをご確認くださいませ');
+define('SUCCESS_MSG','ﾃﾞｰﾀﾍﾞｰｽ登録が完了いたしました。');

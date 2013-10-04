@@ -19,8 +19,9 @@ class  auth{
 	public $login_mail;
 	public $login_pass;
 	public $login_hidden;
+	public $error_msg;
+	public $success_msg;
 	private $PDO = null;
-
 	//処理開始
 	public function __construct(){
 		session_start();
@@ -33,6 +34,7 @@ class  auth{
 			print('Error:'.$e->getMessage());
 			die('error');
 		}
+
 	}
 	/*
 	 * 新規登録関数
@@ -40,9 +42,9 @@ class  auth{
 	* 名前、ﾒｰﾙ、ﾊﾟｽﾜｰﾄﾞを登録
 	*/
 	public function registar($name,$mail,$pass,$hidden){
-		$this->name   = htmlspecialchars($name);
-		$this->mail   = htmlspecialchars($mail);
-		$this->pass   = htmlspecialchars($pass);
+		$this->name   = htmlspecialchars($name,ENT_QUOTES);
+		$this->mail   = htmlspecialchars($mail,ENT_QUOTES);
+		$this->pass   = htmlspecialchars($pass,ENT_QUOTES);
 		$this->hidden = htmlspecialchars($hidden);
 		$this->check($this->name,$this->mail,$this->pass,$this->hidden);
 	}
@@ -51,15 +53,15 @@ class  auth{
 		if($this->hidden === 'hidden'){
 			if(empty($this->name)){
 				//nameがnullだったら
-				$this->error_msg  = ERROR_NONE_NAME;
+				$this->error_msg  = ERROR_NAME;
 				return $this->error_msg;
 			}else if(empty($this->mail)){
 				//mailがnullだったら
-				$this->error_msg .= ERROR_NONE_MAIL;
+				$this->error_msg .= ERROR_MAIL;
 				return $this->error_msg;
 			}else if(empty($this->pass)){
 				//ﾊﾟｽﾜｰﾄﾞがnullだったら
-				$this->error_msg .= ERROR_NONE_PASS;
+				$this->error_msg .= ERROR_PASS;
 				return $this->error_msg;
 			}else if (mb_strlen($this->pass) < 6) {
 				//ﾊﾟｽﾜｰﾄﾞが6文字以下だったら
@@ -69,11 +71,11 @@ class  auth{
 				//ﾊﾟｽﾜｰﾄﾞが32文字以下か確認
 				$this->error_msg .= ERROR_MSG1;
 				return $this->error_msg;
-			}else if (!preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $this->pass)) {
+			}else if (preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $this->pass)) {
 				//ｱﾄﾞﾚｽの正規表現ﾁｪｯｸ
-				$this->error_msg .= ERROR_MSG2;
+				$this->error_msg .= ERROR_MAG6;
 				return $this->error_msg;
-			}else if (!preg_match( "/[\@-\~]/" , $this->pass)) {
+			}else if (preg_match( "/[\@-\~]/" , $this->pass)) {
 				//ﾊﾟｽﾜｰﾄﾞの半角英数ﾁｪｯｸ
 				$this->error_msg .= ERROR_MSG3;
 				return $this->error_msg;
@@ -83,26 +85,34 @@ class  auth{
 		}else{
 			$this->error_msg = ERROR_MSG5;
 			return $this->error_msg;
+			echo "mojoo";
 		}
 	}
+	/*
+	 * ﾃﾞｰﾀﾍﾞｰｽ登録
+	 * 二重ﾁｪｯｸ後登録
+	 * 任意のﾃｰﾌﾞﾙに変更する必要がある
+	 */
 	public function duplication_check($name,$mail,$pass,$hidden){
 		//ﾒｰﾙｱﾄﾞﾚｽ重複ﾁｪｯｸ
-		$sth  = $PDO->prepare('SELECT COUNT(*) AS cnt FROM login WHERE mail = :mail');
-		$sth->bindValue(':mail',mysql_real_escape_string($this->mail),PDO::PARAM_STR);
+		$sth  = $this->PDO->prepare('SELECT COUNT(*)  FROM login WHERE mail = :mail');
+		$sth->bindValue(':mail',$this->mail,PDO::PARAM_STR);
 		$sth->execute();
 		$check = $sth->fetch(PDO::FETCH_NUM);
-		if ($check > 0) {
+		if($check['0'] > 0){
 			$this->error_msg = ERROR_MSG4;
 			return $this->error_msg;
 		}else{
 			//ﾃﾞｰﾀ登録
 			$sth ="";
-			$sth = $PDO->prepare('INSERT INTO login (name,mail,pass) VALUES (?,?,?)');
-			$sth->bindValue(1,mysqli_real_escape_string($this->name));
-			$sth->bindValue(2,mysqli_real_escape_string($this->mail));
-			$sth->bindValue(3,mysqli_real_escape_string($this->pass));
+			$sth = $this->PDO->prepare('INSERT INTO login (name,mail,pass) VALUES (?,?,?)');
+			$sth->bindValue(1,$this->name);
+			$sth->bindValue(2,$this->mail);
+			$sth->bindValue(3,$this->pass);
 			$sth->execute();//完了
-			header('location:after.php');
+			$this->success_msg = SUCCESS_MSG;
+			return $this->success_msg;
+			//registar終了
 		}
 	}
 	/*
@@ -125,12 +135,9 @@ class  auth{
 				$_SESSION['name'] = $row['name'];
 				header('location:./after.php');
 			}
+		}
 	}
 }
-
-
-
-
 
 
 
