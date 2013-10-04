@@ -20,6 +20,8 @@ class  auth{
 	public $login_hidden;
 	public $error_msg;
 	public $success_msg;
+	public $cookie;
+	public $user_name;
 	private $PDO = null;
 	//処理開始
 	public function __construct(){
@@ -117,7 +119,7 @@ class  auth{
 	/*
 	 * ﾛｸﾞｲﾝ機能
 	*/
-	public function login($mailad,$password,$hidden){
+	public function login($mailad,$password,$hidden,$cookie){
 		//初期化処理
 		$this->login_mail = "";
 		$this->login_pass = "";
@@ -125,9 +127,12 @@ class  auth{
 		$this->login_mail = htmlspecialchars($mailad);
 		$this->login_pass = htmlspecialchars($password);
 		$this->login_hidd = htmlspecialchars($hidden);
+		//ｸｯｷｰのｾｯﾄ
+		if($cookie == "cook"){
+			setcookie('login',$this->login_mail,time()+60*60*24,false);
+		}
 		//ﾊﾟｽﾜｰﾄﾞのﾊｯｼｭ処理、sha256
 		$this->login_pass = hash("sha256",$this->login_pass);
-		var_dump($this->login_pass);
 		if ($this->login_hidd == "hidden") {
 			//form情報が渡ってきたらﾃﾞｰﾀﾍﾞｰｽ確認
 			$sth = $this->PDO->prepare('select * from login where mail = :mail and pass = :pass');
@@ -140,9 +145,9 @@ class  auth{
 				$_SESSION['id']   = $row['id'];
 				$_SESSION['time'] = time();
 				$_SESSION['name'] = $row['name'];
+				$this->user_name = $_SESSION['name'];
 				$this->success_msg = SUCCESS_LOG;
 				//header('location:./after.php');
-				//rinda-rinda@rinda.com
 			}else{
 				$this->error_msg = "";
 				$this->error_msg = ERROR_LOG;
