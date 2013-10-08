@@ -5,6 +5,7 @@
  * 備考：ﾃﾞｰﾀﾍﾞｰｽのｱﾄﾞﾚｽｶﾗﾑはﾕﾆｰｸに設定しておく必要がある
  * ﾊﾟｽﾜｰﾄﾞはsha256でﾊｯｼｭ処理
  * ｸｯｷｰで以前入力したｱﾄﾞﾚｽをﾌｫｰﾑに実装、任意でsetcookieのﾄﾞﾒｲﾝ変更
+ * ｱﾄﾞﾚｽを忘れた時のﾕｰｻﾞｰ送信機能も実装//sendmail.ini等の設定必須
  */
 require_once '/common/config.php';
 //クラス開始
@@ -156,6 +157,69 @@ class  auth{
 			}
 		}
 	}
+	/*
+	 * ﾕｰｻﾞｰがﾊﾟｽﾜｰﾄﾞを忘れた場合の処理
+	 * 登録のﾒｰﾙｱﾄﾞﾚｽに発行手続き処理ﾍﾟｰｼﾞの送信ﾌﾟﾛｸﾞﾗﾑ
+	 * sendmail.ini等の設定必須
+	 */
+	public function forget_mailad($mail,$hidden){
+		if($hidden == "hidden"){
+			$sth = "";
+			$this->login_mail = htmlspecialchars($mail);
+			//sql select
+			$sth = $this->PDO->prepare('select * from login where mail = :mail');
+			$sth->bindValue(':mail',$this->login_mail,PDO::PARAM_STR);
+			$sth->execute();
+			$row = $sth->fetch(PDO::FETCH_ASSOC);
+			if(isset($row['pass'])){
+				$massage = "";
+				//ﾒｯｾｰｼﾞﾃｷｽﾄを代入
+				$fp = fopen('./php_login/common/massage.txt','r');
+				while ($line = fgets($fp)) {
+					$massage .=  $line."<br>";
+				}
+				//ﾊﾟｽﾜｰﾄﾞ変更用のﾘﾝｸを代入
+				$massage .= PASS_LINK;
+				//ﾒｯｾｰｼﾞﾌｯﾀｰﾃｷｽﾄを代入
+				$fpp= fopen('./php_login/common/massage_footer.txt','r');
+				while ($conte = fgets($fpp)){
+					$massage .=  $conte."<br>";
+				}
+				echo $massage;
+				fclose($fp);
+				fclose($fpp);
+				//ﾒｰﾙ送信
+				mb_language("Ja") ;
+				mb_internal_encoding("UTF-8") ;
+				$mailto = $this->login_mail;
+				$subject= MAIL_TITLE;
+				$mailfrom="From:" .mb_encode_mimeheader("サイト名") ."<example@example.jp>";
+				$mailto = mb_send_mail($mail,$subject,$massage,$mailfrom);
+				if(!$mailto){
+					$this->error_msg   = ERROR_NOT_TRANS;
+					echo "unko";
+				}else{
+					$this->success_msg = SUCCESS_TRANS;
+					echo "成功";
+				}
+			}
+		}
+	}
+	/*
+	 * ﾊﾟｽﾜｰﾄﾞ発行処理画面のﾍﾟｰｼﾞ処理
+	 */
+	public function change_pass($mail,$pass,$hidden){
+		if($hidden = "hidden"){
+			if($strlen($pass) <= 6){
+
+			}
+			$sth = $this->PDO->prepare('UPDATE login SET pass = :pass where mail = :mail');
+			$sth->bindValue(':mail',$mail,PDO::PARAM_STR);
+			$sth->bindValue(':pass',hash('sha256',$pass),PDO::PARAM_STR);
+			$sth->execute();
+		}
+	}
+
 }
 
 
