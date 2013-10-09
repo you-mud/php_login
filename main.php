@@ -42,6 +42,7 @@ class  auth{
 		$this->mail   = htmlspecialchars($mail,ENT_QUOTES);
 		$this->pass   = htmlspecialchars($pass,ENT_QUOTES);
 		$this->hidden = htmlspecialchars($hidden,ENT_QUOTES);
+		$this->duplication_check($name,$mail,$pass,$hidden);
 	}
 	public function name_check($name){
 		if(empty($name)){
@@ -69,7 +70,7 @@ class  auth{
 			return;
 		}
 	}
-	public function mail_check($pass){
+	public function pass_check($pass){
 		if(empty($pass)){
 			$this->error_msg .= ERROR_NONE_PASS;
 			return $this->error_msg;
@@ -89,11 +90,19 @@ class  auth{
 			return;
 		}
 	}
+	public function pass_hash($pass){
+		$pass = hash('sha256',$pass);
+		return $pass;
+	}
 	/*
 	 * 重複ﾁｪｯｸ
 	 * データ登録
 	 */
-	public function duplication_check($name,$mail,$pass){
+	public function duplication_check($name,$mail,$pass,$hidden){
+		$this->name_check($name);
+		$this->mail_check($mail);
+		$this->pass_check($pass);
+		$this->pass_hash($pass);
 			//ﾒｰﾙｱﾄﾞﾚｽ重複ﾁｪｯｸ
 		$sth  = $this->PDO->prepare('SELECT COUNT(*)  FROM login WHERE mail = :mail');
 		$sth->bindValue(':mail',$mail,PDO::PARAM_STR);
@@ -114,6 +123,18 @@ class  auth{
 			return $this->success_msg;
 			//registar終了
 		}
+	}
+	/*
+	 * ﾛｸﾞｲﾝ
+	 */
+	public function login($mail,$pass,$hidden){
+		//ｴｽｹｰﾌﾟ処理
+		$this->login_mail = htmlspecialchars($mailad);
+		$this->login_pass = htmlspecialchars($password);
+		$this->login_hidd = htmlspecialchars($hidden);
+		//ﾊｯｼｭ処理
+		$this->login_pass = $this->pass_hash($this->login_pass);
+
 	}
 }
 
